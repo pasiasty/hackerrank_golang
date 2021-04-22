@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
+	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -21,14 +24,20 @@ func dumpFileWithoutPackage(filename string, imports map[string]interface{}, cw 
 		log.Fatalf("Failed to read %s: %v", filename, err)
 	}
 
-	matches := fileRegexp.FindAllStringSubmatch(string(ub), -1)
+	matches := fileRegexp.FindStringSubmatch(string(ub))
 
-	for _, l := range strings.Split(matches[0][1], "\n") {
+	importsIdx := fileRegexp.SubexpIndex("imports")
+	restIdx := fileRegexp.SubexpIndex("rest")
+
+	for _, l := range strings.Split(matches[importsIdx], "\n") {
 		if trimmed := strings.Trim(l, "\t "); trimmed != "" {
-			imports[trimmed] = new(interface{})
+			if !strings.Contains(trimmed, "github.com/pasiasty/hackerrank_golang") {
+				imports[trimmed] = new(interface{})
+			}
 		}
 	}
-	cw.Write([]byte(matches[0][2]))
+	cw.Write([]byte(fmt.Sprintf("\n// -- %v -- ", filename)))
+	cw.Write([]byte(strings.ReplaceAll(matches[restIdx], "utils.", "")))
 }
 
 func main() {
@@ -37,14 +46,24 @@ func main() {
 
 	imports[`"os"`] = new(interface{})
 
-	dumpFileWithoutPackage("utils/utils.go", imports, cw)
-	dumpFileWithoutPackage("solution/solution.go", imports, cw)
+	filepath.Walk("utils", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		if strings.Contains(info.Name(), "_test.go") || !strings.Contains(info.Name(), ".go") {
+			return nil
+		}
+		dumpFileWithoutPackage(path, imports, cw)
+		return nil
+	})
+
+	dumpFileWithoutPackage(path.Join("solution", "solution.go"), imports, cw)
 
 	if err := os.Mkdir("output", os.ModeDir|os.ModePerm); err != nil && !os.IsExist(err) {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 
-	f, err := os.Create("output/output.go")
+	f, err := os.Create(path.Join("output", "output.go"))
 	if err != nil {
 		log.Fatalf("Failed to open file: %v", err)
 	}
@@ -52,10 +71,19 @@ func main() {
 
 	output.Write([]byte("package main\n\n"))
 	output.Write([]byte("import (\n"))
-	for k, _ := range imports {
-		output.Write([]byte(fmt.Sprintf("\t%v\n", k)))
+
+	importsSorted := []string{}
+	for k := range imports {
+		importsSorted = append(importsSorted, fmt.Sprintf("\t%v\n", k))
 	}
-	output.Write([]byte(")"))
+
+	sort.Strings(importsSorted)
+
+	for _, i := range importsSorted {
+		output.Write([]byte(i))
+	}
+
+	output.Write([]byte(")\n"))
 	output.Write(cw.Bytes())
 	output.Write([]byte(
 		`
