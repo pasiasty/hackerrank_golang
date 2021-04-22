@@ -54,7 +54,7 @@ func MustReadNewLine(r io.Reader) {
 func MustReadLineOfInts(r io.Reader, wantNumOfResults int) []int {
 	br := bufio.NewReader(r)
 	l, err := br.ReadString('\n')
-	if err != nil {
+	if err != nil && err != io.EOF {
 		panic(fmt.Sprintf("Could not read string from reader: %v", err))
 	}
 
@@ -79,7 +79,7 @@ func MustReadLineOfInts(r io.Reader, wantNumOfResults int) []int {
 func MustReadLineOfFloats(r io.Reader, wantNumOfResults int) []float64 {
 	br := bufio.NewReader(r)
 	l, err := br.ReadString('\n')
-	if err != nil {
+	if err != nil && err != io.EOF {
 		panic(fmt.Sprintf("Could not read string from reader: %v", err))
 	}
 

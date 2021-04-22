@@ -147,6 +147,10 @@ func TestMustReadLineOfInts(t *testing.T) {
 		input:     "1 3 15\n17 16",
 		expOutput: []int{1, 3, 15},
 	}, {
+		name:      "single_line",
+		input:     "1 3 15",
+		expOutput: []int{1, 3, 15},
+	}, {
 		name:             "check_num_of_results",
 		input:            "1 3 15\n17 16",
 		expOutput:        []int{1, 3, 15},
@@ -188,6 +192,10 @@ func TestMustReadLineOfFloats(t *testing.T) {
 	}{{
 		name:      "dont_check_num_of_results",
 		input:     "1.2 3.7 15.8\n17 16",
+		expOutput: []float64{1.2, 3.7, 15.8},
+	}, {
+		name:      "single_line",
+		input:     "1.2 3.7 15.8",
 		expOutput: []float64{1.2, 3.7, 15.8},
 	}, {
 		name:             "check_num_of_results",
