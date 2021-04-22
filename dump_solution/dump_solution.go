@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -21,7 +20,7 @@ var (
 func dumpFileWithoutPackage(filename string, imports map[string]interface{}, cw io.Writer) {
 	ub, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.Fatalf("Failed to read %s: %v", filename, err)
+		panic(fmt.Sprintf("Failed to read %s: %v", filename, err))
 	}
 
 	matches := fileRegexp.FindStringSubmatch(string(ub))
@@ -48,7 +47,7 @@ func main() {
 
 	filepath.Walk("utils", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Fatalf(err.Error())
+			panic(err.Error())
 		}
 		if strings.Contains(info.Name(), "_test.go") || !strings.Contains(info.Name(), ".go") {
 			return nil
@@ -60,12 +59,12 @@ func main() {
 	dumpFileWithoutPackage(path.Join("solution", "solution.go"), imports, cw)
 
 	if err := os.Mkdir("output", os.ModeDir|os.ModePerm); err != nil && !os.IsExist(err) {
-		log.Fatalf("Failed to create output directory: %v", err)
+		panic(fmt.Sprintf("Failed to create output directory: %v", err))
 	}
 
 	f, err := os.Create(path.Join("output", "output.go"))
 	if err != nil {
-		log.Fatalf("Failed to open file: %v", err)
+		panic(fmt.Sprintf("Failed to open file: %v", err))
 	}
 	output := f
 
