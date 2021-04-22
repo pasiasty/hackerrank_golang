@@ -14,7 +14,9 @@ import (
 )
 
 var (
-	fileRegexp = regexp.MustCompile(`import \((?P<imports>[\s\S]+?)\)(?P<rest>[\s\S]+)`)
+	fileRegexp             = regexp.MustCompile(`import \((?P<imports>[\s\S]+?)\)(?P<rest>[\s\S]+)`)
+	fileRegexpSingleImport = regexp.MustCompile(`import (?P<imports>\"[\S]+?\")\n(?P<rest>[\s\S]+)`)
+	noImportsRegexp        = regexp.MustCompile(`package.*(?P<rest>[\s\S]+)`)
 )
 
 func dumpFileWithoutPackage(filename string, imports map[string]interface{}, cw io.Writer) {
@@ -28,10 +30,26 @@ func dumpFileWithoutPackage(filename string, imports map[string]interface{}, cw 
 	importsIdx := fileRegexp.SubexpIndex("imports")
 	restIdx := fileRegexp.SubexpIndex("rest")
 
-	for _, l := range strings.Split(matches[importsIdx], "\n") {
-		if trimmed := strings.Trim(l, "\t "); trimmed != "" {
-			if !strings.Contains(trimmed, "github.com/pasiasty/hackerrank_golang") {
-				imports[trimmed] = new(interface{})
+	if len(matches) == 0 {
+		matches = fileRegexpSingleImport.FindStringSubmatch(string(ub))
+
+		importsIdx = fileRegexpSingleImport.SubexpIndex("imports")
+		restIdx = fileRegexpSingleImport.SubexpIndex("rest")
+
+		if len(matches) == 0 {
+			matches = noImportsRegexp.FindStringSubmatch(string(ub))
+
+			importsIdx = -1
+			restIdx = noImportsRegexp.SubexpIndex("rest")
+		}
+	}
+
+	if importsIdx != -1 {
+		for _, l := range strings.Split(matches[importsIdx], "\n") {
+			if trimmed := strings.Trim(l, "\t "); trimmed != "" {
+				if !strings.Contains(trimmed, "github.com/pasiasty/hackerrank_golang") {
+					imports[trimmed] = new(interface{})
+				}
 			}
 		}
 	}
