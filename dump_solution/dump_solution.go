@@ -35,10 +35,16 @@ func main() {
 	cw := bytes.NewBuffer(nil)
 	imports := make(map[string]interface{})
 
+	imports[`"os"`] = new(interface{})
+
 	dumpFileWithoutPackage("utils/utils.go", imports, cw)
 	dumpFileWithoutPackage("solution/solution.go", imports, cw)
 
-	f, err := os.Create("output.go")
+	if err := os.Mkdir("output", os.ModeDir|os.ModePerm); err != nil && !os.IsExist(err) {
+		log.Fatalf("Failed to create output directory: %v", err)
+	}
+
+	f, err := os.Create("output/output.go")
 	if err != nil {
 		log.Fatalf("Failed to open file: %v", err)
 	}
