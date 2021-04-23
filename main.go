@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"os"
 
 	"github.com/pasiasty/hackerrank_golang/solution"
@@ -8,5 +9,5 @@ import (
 )
 
 func main() {
-	solution.Solution(utils.SkipBOM(os.Stdin), os.Stdout)
+	solution.Solution(utils.SkipBOM(bufio.NewReader(os.Stdin)), os.Stdout)
 }

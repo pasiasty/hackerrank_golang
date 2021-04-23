@@ -9,7 +9,7 @@ import (
 )
 
 // SkipBOM removes BOM from the reader.
-func SkipBOM(r *bufio.Reader) io.Reader {
+func SkipBOM(r *bufio.Reader) *bufio.Reader {
 	rr, _, err := r.ReadRune()
 	if err != nil {
 		panic(err)

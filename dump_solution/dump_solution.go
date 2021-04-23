@@ -153,7 +153,7 @@ func main() {
 	output.Write([]byte(
 		`
 func main() {
-	Solution(SkipBOM(os.Stdin), os.Stdout)
+	Solution(SkipBOM(bufio.NewReader(os.Stdin)), os.Stdout)
 }
 `,
 	))

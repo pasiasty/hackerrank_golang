@@ -49,7 +49,7 @@ func (h *MaxHeap) Push(e MaxHeapElement) {
 }
 
 func (h *MaxHeap) pushDown(idx int) {
-	if idx == (h.count - 1) {
+	if (2 * idx) >= h.count {
 		return
 	}
 

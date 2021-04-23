@@ -79,7 +79,7 @@ func TestSolution(t *testing.T) {
 			solution.Solution(bufio.NewReader(r), w)
 
 			if res := string(w.Bytes()); res != tc.expOutput {
-				t.Errorf("Wrong result, want: %v got: %v", tc.expOutput, res)
+				t.Errorf("Wrong result, want:\n%v got:\n%v", tc.expOutput, res)
 			}
 		})
 	}
