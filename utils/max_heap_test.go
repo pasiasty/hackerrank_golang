@@ -25,44 +25,71 @@ func TestMaxHeap(t *testing.T) {
 	h.Push(toUpdateDown)
 
 	if expVal := 10; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 5; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 
 	toUpdateDown.k = 1
 	h.UpdatePosition(toUpdateDown)
 
 	if expVal := 7; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 5; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 
 	h.Pop()
 
 	if expVal := 3; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 4; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 
 	h.Pop()
 
 	if expVal := 2; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 3; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 
 	h.Pop()
 
 	if expVal := 1; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 2; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 
 	toUpdateUp.k = 12
 	h.UpdatePosition(toUpdateUp)
 
 	if expVal := 12; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 2; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 
 	h.Pop()
 
 	if expVal := 1; h.Peek().Key() != expVal {
-		t.Errorf("Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+		t.Errorf("Peek() Wrong value, want: %v got: %v", expVal, h.Peek().Key())
+	}
+	if expVal := 1; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
+	}
+
+	h.Pop()
+
+	if expVal := 0; h.Len() != expVal {
+		t.Errorf("Len() Wrong value, want: %v got: %v", expVal, h.Len())
 	}
 }

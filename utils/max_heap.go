@@ -105,3 +105,7 @@ func (h *MaxHeap) UpdatePosition(e MaxHeapElement) {
 		h.pushDown(idx)
 	}
 }
+
+func (h *MaxHeap) Len() int {
+	return h.count
+}
