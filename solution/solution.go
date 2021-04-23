@@ -2,11 +2,15 @@ package solution
 
 import (
 	"bufio"
+	"fmt"
 	"io"
-	"log"
 
 	"github.com/pasiasty/hackerrank_golang/utils"
 )
+
+func testCase(rows, cols int, grid [][]int) int {
+	return 0
+}
 
 // Solution contains solution to the problem.
 func Solution(r *bufio.Reader, w io.Writer) {
@@ -22,6 +26,6 @@ func Solution(r *bufio.Reader, w io.Writer) {
 			grid = append(grid, utils.MustReadLineOfInts(r, cols))
 		}
 
-		log.Printf("grid: %v", grid)
+		w.Write([]byte(fmt.Sprintf("Case #%d: %d\n", i+1, testCase(rows, cols, grid))))
 	}
 }
