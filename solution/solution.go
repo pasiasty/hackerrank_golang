@@ -8,22 +8,9 @@ import (
 	"github.com/pasiasty/hackerrank_golang/utils"
 )
 
-type heapElement struct {
-	height int
+type gridElement struct {
 	x, y   int
-}
-
-func (e *heapElement) Key() int {
-	return e.height
-}
-
-func (e *heapElement) desiredHeight(h int) int {
-	if e.height < h {
-		res := h - e.height
-		e.height = h
-		return res
-	}
-	return 0
+	height int
 }
 
 func inGrid(x, y, rows, cols int) bool {
@@ -33,51 +20,90 @@ func inGrid(x, y, rows, cols int) bool {
 	return true
 }
 
-func testCase(rows, cols int, grid [][]int) int {
-	heap := utils.NewMaxHeap()
-	elements := [][]*heapElement{}
+type bucketer struct {
+	buckets   map[int]map[*gridElement]interface{}
+	maxHeight int
+}
 
-	for y, row := range grid {
-		elements = append(elements, []*heapElement{})
+func newBucketer() *bucketer {
+	return &bucketer{buckets: make(map[int]map[*gridElement]interface{})}
+}
 
-		for x, el := range row {
-			elements[y] = append(elements[y], &heapElement{height: el, x: x, y: y})
-			heap.Push(elements[y][x])
+func peekFromMap(m map[*gridElement]interface{}) *gridElement {
+	for e := range m {
+		return e
+	}
+	panic("I shouldn't be here!")
+}
+
+func (b *bucketer) putElement(el *gridElement) {
+	if el.height > b.maxHeight {
+		b.maxHeight = el.height
+	}
+	if bucket, ok := b.buckets[el.height]; ok {
+		bucket[el] = new(interface{})
+	} else {
+		newBucket := make(map[*gridElement]interface{})
+		newBucket[el] = new(interface{})
+		b.buckets[el.height] = newBucket
+	}
+}
+
+func (b *bucketer) pop() *gridElement {
+	el := peekFromMap(b.buckets[b.maxHeight])
+
+	if len(b.buckets[b.maxHeight]) == 1 {
+		b.maxHeight--
+	} else {
+		delete(b.buckets[b.maxHeight], el)
+	}
+
+	return el
+}
+
+func (b *bucketer) updateHeight(el *gridElement, newHeight int) {
+	delete(b.buckets[el.height], el)
+	el.height = newHeight
+	b.putElement(el)
+}
+
+func fixBoxIfNeeded(x, y, rows, cols, desiredHeight int, ge [][]*gridElement, b *bucketer) int {
+	res := 0
+
+	if inGrid(x, y, rows, cols) {
+		el := ge[y][x]
+		if el.height < desiredHeight {
+			res += desiredHeight - el.height
+			b.updateHeight(el, desiredHeight)
 		}
 	}
 
+	return res
+}
+
+func testCase(rows, cols int, grid [][]int) int {
 	res := 0
 
-	for heap.Len() > 0 {
-		// for _, row := range elements {
-		// 	for _, el := range row {
-		// 		fmt.Printf("%+v ", el)
-		// 	}
-		// 	fmt.Printf("\n")
-		// }
-		el := heap.Peek()
-		heap.Pop()
+	b := newBucketer()
 
-		hel := el.(*heapElement)
+	ge := [][]*gridElement{}
 
-		dh, x, y := hel.height-1, hel.x, hel.y
+	for y, row := range grid {
+		ge = append(ge, []*gridElement{})
+		for x, height := range row {
+			el := &gridElement{x: x, y: y, height: height}
+			b.putElement(el)
+			ge[y] = append(ge[y], el)
+		}
+	}
 
-		if inGrid(x-1, y, rows, cols) {
-			res += elements[y][x-1].desiredHeight(dh)
-			heap.UpdatePosition(elements[y][x-1])
-		}
-		if inGrid(x+1, y, rows, cols) {
-			res += elements[y][x+1].desiredHeight(dh)
-			heap.UpdatePosition(elements[y][x+1])
-		}
-		if inGrid(x, y-1, rows, cols) {
-			res += elements[y-1][x].desiredHeight(dh)
-			heap.UpdatePosition(elements[y-1][x])
-		}
-		if inGrid(x, y+1, rows, cols) {
-			res += elements[y+1][x].desiredHeight(dh)
-			heap.UpdatePosition(elements[y+1][x])
-		}
+	for i := 0; i < (rows * cols); i++ {
+		el := b.pop()
+		dh := el.height - 1
+		res += fixBoxIfNeeded(el.x-1, el.y, rows, cols, dh, ge, b)
+		res += fixBoxIfNeeded(el.x+1, el.y, rows, cols, dh, ge, b)
+		res += fixBoxIfNeeded(el.x, el.y-1, rows, cols, dh, ge, b)
+		res += fixBoxIfNeeded(el.x, el.y+1, rows, cols, dh, ge, b)
 	}
 
 	return res
