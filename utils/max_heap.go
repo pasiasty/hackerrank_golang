@@ -8,7 +8,14 @@ type MaxHeapElement interface {
 // MaxHeap keeps max value always on top.
 type MaxHeap struct {
 	elements []MaxHeapElement
+	idxMap   map[MaxHeapElement]int
 	count    int
+}
+
+func NewMaxHeap() *MaxHeap {
+	return &MaxHeap{
+		idxMap: make(map[MaxHeapElement]int),
+	}
 }
 
 func (h *MaxHeap) ensureLength() {
@@ -24,6 +31,10 @@ func (h *MaxHeap) Peek() MaxHeapElement {
 func (h *MaxHeap) Pop() {
 	h.count--
 	h.elements[0] = h.elements[h.count]
+
+	delete(h.idxMap, h.elements[h.count])
+	h.idxMap[h.elements[0]] = 0
+
 	h.pushDown(0)
 }
 
@@ -31,6 +42,9 @@ func (h *MaxHeap) Push(e MaxHeapElement) {
 	h.count++
 	h.ensureLength()
 	h.elements[h.count-1] = e
+
+	h.idxMap[e] = h.count - 1
+
 	h.pushUp(h.count - 1)
 }
 
@@ -44,6 +58,10 @@ func (h *MaxHeap) pushDown(idx int) {
 			temp := h.elements[idx*2+1]
 			h.elements[idx*2+1] = h.elements[idx]
 			h.elements[idx] = temp
+
+			h.idxMap[temp] = idx
+			h.idxMap[h.elements[idx*2+1]] = idx*2 + 1
+
 			h.pushDown(idx*2 + 1)
 			return
 		}
@@ -53,6 +71,10 @@ func (h *MaxHeap) pushDown(idx int) {
 		temp := h.elements[idx*2]
 		h.elements[idx*2] = h.elements[idx]
 		h.elements[idx] = temp
+
+		h.idxMap[temp] = idx
+		h.idxMap[h.elements[idx*2]] = idx * 2
+
 		h.pushDown(idx * 2)
 	}
 }
@@ -66,6 +88,20 @@ func (h *MaxHeap) pushUp(idx int) {
 		temp := h.elements[idx>>1]
 		h.elements[idx>>1] = h.elements[idx]
 		h.elements[idx] = temp
+
+		h.idxMap[temp] = idx
+		h.idxMap[h.elements[idx>>1]] = idx >> 1
+
 		h.pushUp(idx >> 1)
+	}
+}
+
+func (h *MaxHeap) UpdatePosition(e MaxHeapElement) {
+	idx := h.idxMap[e]
+
+	if h.elements[idx>>1].Key() < e.Key() {
+		h.pushUp(idx)
+	} else {
+		h.pushDown(idx)
 	}
 }
