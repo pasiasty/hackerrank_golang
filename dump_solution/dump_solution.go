@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/atotto/clipboard"
 )
 
 var (
@@ -130,11 +132,7 @@ func main() {
 		panic(fmt.Sprintf("Failed to create output directory: %v", err))
 	}
 
-	f, err := os.Create(path.Join("output", "output.go"))
-	if err != nil {
-		panic(fmt.Sprintf("Failed to open file: %v", err))
-	}
-	output := f
+	output := bytes.NewBuffer(nil)
 
 	output.Write([]byte("package main\n\n"))
 	output.Write([]byte("import (\n"))
@@ -159,4 +157,11 @@ func main() {
 }
 `,
 	))
+
+	if err := ioutil.WriteFile(path.Join("output", "output.go"), output.Bytes(), os.ModePerm); err != nil {
+		panic(err)
+	}
+	if err := clipboard.WriteAll(string(output.Bytes())); err != nil {
+		panic(err)
+	}
 }
