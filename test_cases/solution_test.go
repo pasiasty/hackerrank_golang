@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -22,7 +24,7 @@ var (
 type testCase struct {
 	name      string
 	input     string
-	expOutput string
+	expOutput []string
 }
 
 func getCurrDir() string {
@@ -39,15 +41,26 @@ func prepareTestCase(name string) *testCase {
 		panic(err)
 	}
 
-	eob, err := ioutil.ReadFile(outputPath)
+	f, err := os.Open(outputPath)
 	if err != nil {
 		panic(err)
+	}
+
+	expOutput := []string{}
+
+	rb := bufio.NewReader(f)
+	for {
+		lb, _, err := rb.ReadLine()
+		expOutput = append(expOutput, string(lb))
+		if err == io.EOF {
+			break
+		}
 	}
 
 	return &testCase{
 		name:      name,
 		input:     string(ib),
-		expOutput: string(eob),
+		expOutput: expOutput,
 	}
 }
 
@@ -78,8 +91,22 @@ func TestSolution(t *testing.T) {
 
 			solution.Solution(bufio.NewReader(r), w)
 
-			if res := string(w.Bytes()); res != tc.expOutput {
-				t.Errorf("Wrong result, want:\n%v got:\n%v", tc.expOutput, res)
+			resReader := bufio.NewReader(bytes.NewBuffer(w.Bytes()))
+			res := []string{}
+
+			for {
+				lb, _, err := resReader.ReadLine()
+				res = append(res, string(lb))
+				if err == io.EOF {
+					break
+				}
+			}
+
+			if !reflect.DeepEqual(res, tc.expOutput) {
+				t.Errorf(
+					"Wrong result, want:\n%v got:\n%v",
+					strings.Join(tc.expOutput, "\n"),
+					strings.Join(res, "\n"))
 			}
 		})
 	}
