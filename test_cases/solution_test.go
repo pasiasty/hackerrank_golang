@@ -1,6 +1,7 @@
 package test_cases
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io/ioutil"
@@ -75,7 +76,7 @@ func TestSolution(t *testing.T) {
 			r := bytes.NewBufferString(tc.input)
 			w := bytes.NewBuffer(nil)
 
-			solution.Solution(r, w)
+			solution.Solution(bufio.NewReader(r), w)
 
 			if res := string(w.Bytes()); res != tc.expOutput {
 				t.Errorf("Wrong result, want: %v got: %v", tc.expOutput, res)

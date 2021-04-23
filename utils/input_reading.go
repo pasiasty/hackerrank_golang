@@ -9,17 +9,16 @@ import (
 )
 
 // SkipBOM removes BOM from the reader.
-func SkipBOM(r io.Reader) io.Reader {
-	br := bufio.NewReader(r)
-	rr, _, err := br.ReadRune()
+func SkipBOM(r *bufio.Reader) io.Reader {
+	rr, _, err := r.ReadRune()
 	if err != nil {
 		panic(err)
 	}
 	if rr != '\uFEFF' {
-		br.UnreadRune() // Not a BOM -- put the rune back
+		r.UnreadRune() // Not a BOM -- put the rune back
 	}
 
-	return br
+	return r
 }
 
 // MustReadInt reads int from reader
@@ -51,9 +50,10 @@ func MustReadNewLine(r io.Reader) {
 }
 
 // MustReadLineOfInts reads line of ints and returns them as a slice.
-func MustReadLineOfInts(r io.Reader, wantNumOfResults int) []int {
-	br := bufio.NewReader(r)
-	l, err := br.ReadString('\n')
+func MustReadLineOfInts(r *bufio.Reader, wantNumOfResults int) []int {
+	b, _, err := r.ReadLine()
+	l := string(b)
+
 	if err != nil && err != io.EOF {
 		panic(fmt.Sprintf("Could not read string from reader: %v", err))
 	}
@@ -62,7 +62,7 @@ func MustReadLineOfInts(r io.Reader, wantNumOfResults int) []int {
 	res := []int{}
 
 	for _, el := range split {
-		i, err := strconv.Atoi(strings.Trim(el, " \n\t"))
+		i, err := strconv.Atoi(strings.Trim(el, " \n\t\r"))
 		if err != nil {
 			panic(fmt.Sprintf("Failed to convert '%s' to int: %v", el, err))
 		}
@@ -76,9 +76,8 @@ func MustReadLineOfInts(r io.Reader, wantNumOfResults int) []int {
 }
 
 // MustReadLineOfFloats reads line of ints and returns them as a slice.
-func MustReadLineOfFloats(r io.Reader, wantNumOfResults int) []float64 {
-	br := bufio.NewReader(r)
-	l, err := br.ReadString('\n')
+func MustReadLineOfFloats(r *bufio.Reader, wantNumOfResults int) []float64 {
+	l, err := r.ReadString('\n')
 	if err != nil && err != io.EOF {
 		panic(fmt.Sprintf("Could not read string from reader: %v", err))
 	}
@@ -87,7 +86,7 @@ func MustReadLineOfFloats(r io.Reader, wantNumOfResults int) []float64 {
 	res := []float64{}
 
 	for _, el := range split {
-		i, err := strconv.ParseFloat(strings.Trim(el, " \n\t"), 64)
+		i, err := strconv.ParseFloat(strings.Trim(el, " \n\t\r"), 64)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to convert '%s' to int: %v", el, err))
 		}

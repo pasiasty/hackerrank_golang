@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"bytes"
 	"io/ioutil"
 	"reflect"
@@ -23,7 +24,7 @@ func TestSkipBOM(t *testing.T) {
 		expOutput: "foo_bar_baz",
 	}} {
 		t.Run(tc.name, func(t *testing.T) {
-			r := SkipBOM(bytes.NewBufferString(tc.input))
+			r := SkipBOM(bufio.NewReader(bytes.NewBufferString(tc.input)))
 			b, err := ioutil.ReadAll(r)
 			if err != nil {
 				t.Fatalf("Failed to read from reader: %v", err)
@@ -175,7 +176,7 @@ func TestMustReadLineOfInts(t *testing.T) {
 			}
 
 			r := strings.NewReader(tc.input)
-			if res := MustReadLineOfInts(r, tc.wantNumOfResults); !reflect.DeepEqual(tc.expOutput, res) {
+			if res := MustReadLineOfInts(bufio.NewReader(r), tc.wantNumOfResults); !reflect.DeepEqual(tc.expOutput, res) {
 				t.Errorf("Wrong result, want: %v got: %v", tc.expOutput, res)
 			}
 		})
@@ -222,7 +223,7 @@ func TestMustReadLineOfFloats(t *testing.T) {
 			}
 
 			r := strings.NewReader(tc.input)
-			if res := MustReadLineOfFloats(r, tc.wantNumOfResults); !reflect.DeepEqual(tc.expOutput, res) {
+			if res := MustReadLineOfFloats(bufio.NewReader(r), tc.wantNumOfResults); !reflect.DeepEqual(tc.expOutput, res) {
 				t.Errorf("Wrong result, want: %v got: %v", tc.expOutput, res)
 			}
 		})

@@ -1,21 +1,27 @@
 package solution
 
 import (
-	"fmt"
+	"bufio"
 	"io"
+	"log"
 
 	"github.com/pasiasty/hackerrank_golang/utils"
 )
 
 // Solution contains solution to the problem.
-func Solution(r io.Reader, w io.Writer) {
-	s := utils.MustReadLineOfInts(r, -1)
+func Solution(r *bufio.Reader, w io.Writer) {
+	n := utils.MustReadLineOfInts(r, 1)[0]
 
-	sum := 0
+	for i := 0; i < n; i++ {
+		dims := utils.MustReadLineOfInts(r, 2)
+		rows, cols := dims[0], dims[1]
 
-	for _, el := range s {
-		sum += el
+		grid := [][]int{}
+
+		for y := 0; y < rows; y++ {
+			grid = append(grid, utils.MustReadLineOfInts(r, cols))
+		}
+
+		log.Printf("grid: %v", grid)
 	}
-
-	w.Write([]byte(fmt.Sprintf("%d", sum)))
 }
